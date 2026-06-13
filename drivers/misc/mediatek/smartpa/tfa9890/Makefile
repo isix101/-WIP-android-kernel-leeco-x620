@@ -1,0 +1,1 @@
+obj-y += tfa98xx.o

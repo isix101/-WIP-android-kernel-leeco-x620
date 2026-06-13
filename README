@@ -1,0 +1,14 @@
+Test kernel
+working:
+lcm(r69006_dsi_cmd_truly_sgm3804), the other two need some work,
+touchscreen (tested on r69006), possible bugs,
+sound,
+vibrator,
+system startup.
+
+not working: everything else
+
+P.S.: To fix the cameras, you will have to do fortune-telling and study the device tree From the original leeco le 2 kernel and drivers, 
+etc. bq2589x_dual need porting it from the Leeco x600 (some drivers are ported from there), cw201x will have to be written from scratch.
+
+I hope there are enthusiasts who will finish this kernel and port Leeco x620 to HyperOS 2.
