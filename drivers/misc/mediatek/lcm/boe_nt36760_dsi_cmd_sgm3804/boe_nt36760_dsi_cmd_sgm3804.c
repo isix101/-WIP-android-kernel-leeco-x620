@@ -28,12 +28,6 @@
 
 #define LCM_ID_nt35596 (0x9006)
 
-//#define GPIO_SGM3804_ENN   GPIO_LCD_BIAS_ENN_PIN
-//#define GPIO_SGM3804_ENP   GPIO_LCD_BIAS_ENP_PIN
-//#define GPIO_SGM3804_ENN   (GPIO131|0x80000000)
-//#define GPIO_SGM3804_ENP   (GPIO9  |0x80000000)
-
-
 // ---------------------------------------------------------------------------
 //  Local Variables
 // ---------------------------------------------------------------------------
@@ -78,41 +72,6 @@ static LCM_UTIL_FUNCS lcm_util = {0};
 
 //#define LCM_DSI_CMD_MODE 1
 #define LCM_DSI_CMD_MODE 0
-
-
-#ifdef BUILD_LK
-
-#define I2C_I2C_LCD_BIAS_CHANNEL  2
-#define sgm3804_SLAVE_ADDR_WRITE  0x7C  
-static struct mt_i2c_t sgm3804_i2c;
-
-static int sgm3804_write_byte(kal_uint8 addr, kal_uint8 value)
-{
-    kal_uint32 ret_code = I2C_OK;
-    kal_uint8 write_data[2];
-    kal_uint16 len;
-
-    write_data[0]= addr;
-    write_data[1] = value;
-
-    sgm3804_i2c.id = I2C_I2C_LCD_BIAS_CHANNEL;//I2C2;
-    /* Since i2c will left shift 1 bit, we need to set FAN5405 I2C address to >>1 */
-    sgm3804_i2c.addr = (sgm3804_SLAVE_ADDR_WRITE >> 1);
-    sgm3804_i2c.mode = ST_MODE;
-    sgm3804_i2c.speed = 100;
-    len = 2;
-
-    ret_code = i2c_write(&sgm3804_i2c, write_data, len);
-    printk("%s: i2c_write: ret_code: %d\n", __func__, ret_code);
-
-    return ret_code;
-}
-
-#else
-
-	extern int sgm3804_write_bytes(unsigned char addr, unsigned char value);
-
-#endif
 
 static char reg_init[][2] =
 {
@@ -852,50 +811,25 @@ static void lcm_get_params(LCM_PARAMS *params)
 
 static void lcm_init(void)
 {
-	unsigned char cmd = 0x0;
-	unsigned char data = 0xFF;
-	int ret=0;
-
 //	mt_set_gpio_mode(GPIO195|0x800000000,GPIO_MODE_00);
 //	mt_set_gpio_dir(GPIO195|0x80000000,GPIO_DIR_OUT);
 //	mt_set_gpio_out(GPIO195|0x80000000,GPIO_OUT_ZERO);
 //	MDELAY(1);
-
-	cmd=0x00;
-	data=0x0c;//x3	5.2V
 	
 //	mt_set_gpio_mode(GPIO_SGM3804_ENP, GPIO_MODE_00);	//data sheet 136 page ,the first AVDD power on
 //	mt_set_gpio_dir(GPIO_SGM3804_ENP, GPIO_DIR_OUT);
 //	mt_set_gpio_out(GPIO_SGM3804_ENP, GPIO_OUT_ONE);
 	gpio_set_value(60, 1);
-	
-#ifdef BUILD_LK
-	ret=sgm3804_write_byte(cmd,data);
-	if(ret)    	
-		dprintf(0, "[LK]nt36760----sgm3804----cmd=%0x--i2c write error----\n",cmd);    	
-	else
-		dprintf(0, "[LK]nt36760----sgm3804----cmd=%0x--i2c write success----\n",cmd);
-#else
-	ret=sgm3804_write_bytes(cmd,data);
-#endif
+
 	MDELAY(5);
 
 //	mt_set_gpio_mode(GPIO_SGM3804_ENN, GPIO_MODE_00);
 //	mt_set_gpio_dir(GPIO_SGM3804_ENN, GPIO_DIR_OUT);
 //	mt_set_gpio_out(GPIO_SGM3804_ENN, GPIO_OUT_ONE);
 	gpio_set_value(59, 1);
-	cmd=0x01;
-	data=0x0c;
-
-#ifdef BUILD_LK
-	ret=sgm3804_write_byte(cmd,data);
-	if(ret)    	
-		dprintf(0, "[LK]nt36760----sgm3804----cmd=%0x--i2c write error----\n",cmd);    	
-	else
-		dprintf(0, "[LK]nt36760----sgm3804----cmd=%0x--i2c write success----\n",cmd);   
-#else
-	ret=sgm3804_write_bytes(cmd,data); 
-#endif
+	MDELAY(5);
+	gpio_set_value(199, 1);
+	MDELAY(10);
 
 	MDELAY(10);
 
@@ -939,6 +873,9 @@ static void lcm_suspend(void)
 //	mt_set_gpio_dir(GPIO_SGM3804_ENP, GPIO_DIR_OUT);
 //	mt_set_gpio_out(GPIO_SGM3804_ENP, GPIO_OUT_ZERO);
 	gpio_set_value(60, 0);
+	MDELAY(10);
+	
+	gpio_set_value(199, 0);
 	MDELAY(10);
 
 //	mt_set_gpio_mode(GPIO195|0x80000000,GPIO_MODE_00);

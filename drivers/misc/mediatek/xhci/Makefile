@@ -28,4 +28,5 @@ ifeq ($(CONFIG_USB_DEBUG),y)
 	EXTRA_CFLAGS		+= -DDEBUG
 endif
 
-obj-$(CONFIG_USB_XHCI_MTK) += xhci-mtk-power.o xhci-mtk-driver.o xhci-mtk-attrs.o tusb320.o
+obj-$(CONFIG_USB_XHCI_MTK) += xhci-mtk-power.o xhci-mtk-driver.o xhci-mtk-attrs.o 
+#tusb320.o

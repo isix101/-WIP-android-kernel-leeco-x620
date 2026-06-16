@@ -17,7 +17,7 @@ ccflags-y += -I$(srctree)/drivers/misc/mediatek/
 # obj-$(CONFIG_MTK_PMIC)        += mt6311.o
 # Modified start by wenshengfan,2016/5/23
 # We don't have the fan49101 device, cancle compile it.
-obj-$(CONFIG_MTK_PMIC)          += pmic.o pmic_irq.o upmu_common.o pmic_auxadc.o pmic_initial_setting.o fan53555.o fan49101.o da9214.o pmic_chr_type_det.o 
+obj-$(CONFIG_MTK_PMIC)          += pmic.o pmic_irq.o upmu_common.o pmic_auxadc.o pmic_initial_setting.o fan53555.o fan49101.o da9214.o pmic_chr_type_det.o battery_meter_hal.o
 #bq2589x_charger.o
 #bq2589x_dual.o 
 #charging_hw_bq2589x.o
@@ -30,8 +30,6 @@ ccflags-y += -I$(srctree)/drivers/misc/mediatek/base/power/$(MTK_PLATFORM)
 ifeq ($(CONFIG_MTK_PMIC_DVT_SUPPORT),y)
      obj-$(CONFIG_MTK_PMIC)     += pmic_dvt.o
 endif
-
-obj-$(CONFIG_MTK_SMART_BATTERY) += battery_meter_hal.o
 
 ifeq ($(CONFIG_MTK_BQ24261_SUPPORT),y)
      obj-$(CONFIG_MTK_SMART_BATTERY) += bq24261.o charging_hw_bq24261.o

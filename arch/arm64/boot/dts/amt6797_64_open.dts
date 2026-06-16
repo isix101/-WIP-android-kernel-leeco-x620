@@ -646,7 +646,7 @@
 	};
 	accdet_pins_eint_as_int: accdeteint@0 {
 		pins_cmd_dat {
-			pins = <PINMUX_GPIO93__FUNC_EINT16>;
+			pins = <PINMUX_GPIO92__FUNC_EINT15>;
 			slew-rate = <0>;
 			bias-disable;
 		};

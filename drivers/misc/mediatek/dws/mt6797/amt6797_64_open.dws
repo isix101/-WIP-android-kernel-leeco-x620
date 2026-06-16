@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--dct_version="2.2" buid_sn="160113" dws_modification_time="06.12.2026.22:41:51"-->
+<!--dct_version="2.2" buid_sn="160113" dws_modification_time="06.16.2026.22:03:34"-->
 <dct_cfg>
     <general chip="MT6797">
         <proj>k97_v1</proj>
@@ -11,6 +11,9 @@
             <adc1>
                 <varName>TEMPERATURE1</varName>
             </adc1>
+            <adc2>
+                <varName>ADC_FDD_RF_PARAMS_DYNAMIC_CUSTOM_CH</varName>
+            </adc2>
         </module>
         <module name="clk">
             <count>4</count>
@@ -29,13 +32,6 @@
         </module>
         <module name="eint">
             <count>192</count>
-            <eint0>
-                <varName>EXT_BUCK_OC</varName>
-                <debounce_time>0</debounce_time>
-                <polarity>Low</polarity>
-                <sensitive_level>Level</sensitive_level>
-                <debounce_en>Disable</debounce_en>
-            </eint0>
             <eint5>
                 <varName>CHR_STAT</varName>
                 <debounce_time>0</debounce_time>

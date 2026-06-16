@@ -47,14 +47,6 @@ config MTK_BQ24160_SUPPORT
 	  and config MTK_SWCHR_SUPPORT
 	  Set to Yes if BQ24160 is used.
 	default n
-	
-config BATTERY_CW2015
-	tristate "CellWise CW2015 Fuel Gauge"
-	depends on I2C
-	help
-	  CW2015 is fuel-gauge systems for lithium-ion (Li+) batteries
-	  in handheld and portable equipment. The CW2015 is configured
-	  to operate with a single lithium cell
 
 config MTK_BQ24196_SUPPORT
 	bool "MediaTek Battery driver for TI BQ24196"

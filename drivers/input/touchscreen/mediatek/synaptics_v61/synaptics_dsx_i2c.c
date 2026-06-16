@@ -3885,7 +3885,6 @@ static void synaptics_rmi4_suspend(struct device *dev)
 	if (!rmi4_data->sensor_sleep) {
 		rmi4_data->touch_stopped = true;
 
-		// Убираем внешний мьютекс, т.к. вызываемые функции уже защищают I2C через tpd_i2c_*
 		synaptics_rmi4_irq_enable(rmi4_data, false);
 //		synaptics_rmi4_int_enable(rmi4_data, false);
 //		synaptics_rmi4_sleep_enable(rmi4_data, true);
@@ -3927,10 +3926,8 @@ static void synaptics_rmi4_resume(struct device *dev)
     printk("Synaptics resume middle!");
 	synaptics_hw_sw_reset();
     
-    // ========== ИСПРАВЛЕННЫЙ ПОРЯДОК ==========
     rmi4_data->i2c_enabled = true;
     
-    // 2. Сначала реинициализация устройства (она делает полный сброс и инициализацию)
     retval = synaptics_rmi4_reinit_device(rmi4_data);
     if (retval < 0) {
         dev_err(&rmi4_data->i2c_client->dev,

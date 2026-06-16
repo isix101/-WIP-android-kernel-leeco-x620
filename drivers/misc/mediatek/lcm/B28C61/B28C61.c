@@ -24,11 +24,6 @@
 #define FRAME_WIDTH  (1080)
 #define FRAME_HEIGHT (1920)
 
-
-//#define GPIO_SGM3804_ENN   GPIO_LCD_BIAS_ENN_PIN
-//#define GPIO_SGM3804_ENP   GPIO_LCD_BIAS_ENP_PIN
-
-
 // ---------------------------------------------------------------------------
 //  Local Variables
 // ---------------------------------------------------------------------------
@@ -73,40 +68,6 @@ static LCM_UTIL_FUNCS lcm_util = {0};
 
 //#define LCM_DSI_CMD_MODE 1
 #define LCM_DSI_CMD_MODE 0
-
-#ifdef BUILD_LK
-
-#define I2C_I2C_LCD_BIAS_CHANNEL  2
-#define sgm3804_SLAVE_ADDR_WRITE  0x7C  
-static struct mt_i2c_t sgm3804_i2c;
-
-static int sgm3804_write_byte(kal_uint8 addr, kal_uint8 value)
-{
-    kal_uint32 ret_code = I2C_OK;
-    kal_uint8 write_data[2];
-    kal_uint16 len;
-
-    write_data[0]= addr;
-    write_data[1] = value;
-
-    sgm3804_i2c.id = I2C_I2C_LCD_BIAS_CHANNEL;//I2C2;
-    /* Since i2c will left shift 1 bit, we need to set FAN5405 I2C address to >>1 */
-    sgm3804_i2c.addr = (sgm3804_SLAVE_ADDR_WRITE >> 1);
-    sgm3804_i2c.mode = ST_MODE;
-    sgm3804_i2c.speed = 100;
-    len = 2;
-
-    ret_code = i2c_write(&sgm3804_i2c, write_data, len);
-    printk("%s: i2c_write: ret_code: %d\n", __func__, ret_code);
-
-    return ret_code;
-}
-
-#else
-
-	extern int sgm3804_write_bytes(unsigned char addr, unsigned char value);
-
-#endif
 
 static uint8_t reg_init[][2] = {
 {0xFF,0xF0},                     
@@ -804,12 +765,17 @@ static void init_lcm_registers(void)
 {
 	unsigned int data_array[5];
 	int i;
+	unsigned int data;
 	
-	for (i = 0; i < sizeof(reg_init) / sizeof(reg_init[0]); i++) {
-        uint8_t data = 0xFF & reg_init[i][1];
-        data_array[1] = 0xFFFF & (data << 8 | (0xFF & reg_init[i][0]));
-        dsi_set_cmdq(data_array, 2, 1);
-    }
+	data_array[0]=0x00023902;
+	for(i = 0; i < (sizeof(reg_init)/(2*sizeof(char))); i++)
+	{
+		data = 0xff & reg_init[i][1];
+		data_array[1]= 0xffff & ((data << 8) | (0xff & reg_init[i][0]));
+		printk("i = %d,data_array[0] = %x,data_array[1]=%08x\n",i,data_array[0],data_array[1]);	
+		dsi_set_cmdq(data_array,2,1);
+	}
+    printk("lsm reg");
 
 	//0x3B,0x03,0x04,0x04,0x0A,0x0A,  
 	data_array[0]=0x00063902;
@@ -940,44 +906,30 @@ static void lcm_get_params(LCM_PARAMS *params)
 
 static void lcm_init(void)
 {
-	unsigned char cmd = 0x0;
-	unsigned char data = 0xFF;
-	
-	MDELAY(10);
-	cmd = 0x00;
-	data = 0x0E;
-	
-	MDELAY(10);
-
-	gpio_set_value(60, 1);
-	
-	MDELAY(120);
+	printk("lcm init\n");
+	gpio_set_value(60, 1);	
+	MDELAY(5);
 	
 	gpio_set_value(59, 1);
-	
-	cmd=0x01;
-	data=0x0c;
-	
 	MDELAY(10);
 	
 	gpio_set_value(199, 1);
-	
 	MDELAY(10);
 
+	SET_RESET_PIN(1);
+	MDELAY(5);      
 	SET_RESET_PIN(0);
 	MDELAY(10);
 	SET_RESET_PIN(1);
-	MDELAY(20);
-	gpio_set_value(180, 1);
-	MDELAY(20);
-
+	MDELAY(120);
+	
 	init_lcm_registers();
 }
 
 static void lcm_suspend(void)
 {
 	unsigned int data_array[5];
-
+	printk("lcm suspend\n");
 	data_array[0]=0x00280500; // Display Off
 	dsi_set_cmdq(data_array, 1, 1);
 	MDELAY(20); 
@@ -986,17 +938,15 @@ static void lcm_suspend(void)
 	dsi_set_cmdq(data_array, 1, 1);
 	MDELAY(120);
 	
-	data_array[0]=0x22902; // Display Off
-	dsi_set_cmdq(data_array, 1, 1);
-	MDELAY(20);
+//	data_array[0]=0x22902; // Display Off
+//	dsi_set_cmdq(data_array, 1, 1);
+//	MDELAY(20);
 
 	SET_RESET_PIN(0);
 	MDELAY(10);
-	gpio_set_value(180, 0);
-	MDELAY(20);
 
 	gpio_set_value(59, 0);
-	MDELAY(5);	
+	MDELAY(5);
 
 	gpio_set_value(60, 0);
 	MDELAY(10);
@@ -1007,6 +957,7 @@ static void lcm_suspend(void)
 
 static void lcm_resume(void)
 {
+    printk("lcm resume\n");
     lcm_init();
 }
 
